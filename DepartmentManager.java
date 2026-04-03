@@ -1,106 +1,120 @@
-// my name is Mohammed Al-Shaharani my uni ID 445801999
-// Node structure for the linked list
+// Node structure for a Doubly Linked List
 class DepartmentNode {
     int EmpID;
     String EmpName;
     DepartmentNode next;
+    DepartmentNode prev; // Pointer to the previous node
 
     public DepartmentNode(int EmpID, String EmpName) {
         this.EmpID = EmpID;
         this.EmpName = EmpName;
         this.next = null;
+        this.prev = null;
     }
 }
 
-// Main class to manage the Singly Linked List
+// Main class to manage the Doubly Linked List
 public class DepartmentManager {
     private DepartmentNode head;
+    private DepartmentNode tail; // Keep track of the end for easier operations
 
     public DepartmentManager() {
         this.head = null;
-    }
-
-    // Add a new employee to the end of the list
-    public void addLast(int id, String name) {
-        DepartmentNode newNode = new DepartmentNode(id, name);
-        if (head == null) {
-            head = newNode;
-        } else {
-            DepartmentNode temp = head;
-            while (temp.next != null) {
-                temp = temp.next;
-            }
-            temp.next = newNode;
-        }
-        System.out.println("Employee " + name + " added to the end.");
+        this.tail = null;
     }
 
     // Add a new employee to the front of the list
     public void addFirst(int id, String name) {
         DepartmentNode newNode = new DepartmentNode(id, name);
-        newNode.next = head;
-        head = newNode;
+        if (head == null) {
+            head = tail = newNode;
+        } else {
+            newNode.next = head;
+            head.prev = newNode;
+            head = newNode;
+        }
         System.out.println("Employee " + name + " added to the front.");
     }
 
-    // Remove an employee from the list by ID
+    // Add a new employee to the end of the list
+    public void addLast(int id, String name) {
+        DepartmentNode newNode = new DepartmentNode(id, name);
+        if (tail == null) {
+            head = tail = newNode;
+        } else {
+            tail.next = newNode;
+            newNode.prev = tail;
+            tail = newNode;
+        }
+        System.out.println("Employee " + name + " added to the end.");
+    }
+
+    // Remove an employee from the list by ID (Middle, Front, or End)
     public void removeEmployee(int id) {
         if (head == null) {
-            System.out.println("The list is currently empty.");
+            System.out.println("The list is empty.");
             return;
         }
 
-        // Case: The employee to remove is the head
-        if (head.EmpID == id) {
-            head = head.next;
-            System.out.println("Employee with ID " + id + " has been removed.");
-            return;
-        }
-
-        // Case: Look for the employee in the middle or end
         DepartmentNode current = head;
-        while (current.next != null && current.next.EmpID != id) {
+        // Search for the node with the matching ID
+        while (current != null && current.EmpID != id) {
             current = current.next;
         }
 
-        if (current.next != null) {
-            current.next = current.next.next; // Skip the node to remove it
-            System.out.println("Employee with ID " + id + " has been removed.");
-        } else {
+        if (current == null) {
             System.out.println("Employee with ID " + id + " was not found.");
+            return;
         }
+
+        // Adjust pointers to remove the current node
+        if (current == head) {
+            head = head.next;
+            if (head != null) head.prev = null;
+            else tail = null; // List became empty
+        } else if (current == tail) {
+            tail = tail.prev;
+            tail.next = null;
+        } else {
+            // Middle removal logic
+            current.prev.next = current.next;
+            current.next.prev = current.prev;
+        }
+
+        System.out.println("Employee with ID " + id + " has been removed.");
     }
 
-    // Print all employees in the list
+    // Display all employees from front to back
     public void display() {
-        System.out.println("\n--- Department Employee List ---");
+        System.out.println("\n--- Department Employee List (Forward) ---");
         DepartmentNode temp = head;
         if (temp == null) {
-            System.out.println("No employees to display.");
+            System.out.println("List is empty.");
             return;
         }
         while (temp != null) {
-            System.out.print("[" + temp.EmpID + ": " + temp.EmpName + "] -> ");
+            System.out.print("[" + temp.EmpID + ": " + temp.EmpName + "] <-> ");
             temp = temp.next;
         }
         System.out.println("null");
     }
 
-    // Helper method for reverse display using recursion
-    private void printReverse(DepartmentNode node) {
-        if (node == null) return;
-        printReverse(node.next);
-        System.out.print("[" + node.EmpID + ": " + node.EmpName + "] ");
-    }
-
-    // Public method to trigger the reverse display
+    // Display all employees in reverse order (using the prev pointers)
     public void showReverse() {
-        System.out.println("\n--- Reverse Display (Original list unchanged) ---");
-        printReverse(head);
-        System.out.println();
+        System.out.println("\n--- Reverse Display (Backward using prev) ---");
+        DepartmentNode temp = tail;
+        if (temp == null) {
+            System.out.println("List is empty.");
+            return;
+        }
+        while (temp != null) {
+            System.out.print("[" + temp.EmpID + ": " + temp.EmpName + "] <-> ");
+            temp = temp.prev;
+        }
+        System.out.println("null");
     }
 
-    // Entry point for testing the operations
+    // Main method for testing
     public static void main(String[] args) {
         DepartmentManager dept = new DepartmentManager();
 
@@ -110,16 +124,14 @@ public class DepartmentManager {
         dept.addFirst(100, "Khalid");
         dept.addLast(103, "Mona");
 
-        // Show the list
-        dept.display();
+        dept.display(); // Khalid <-> Ahmed <-> Sara <-> Mona
 
-        // Testing removal from the middle (ID 102 - Sara)
+        // Testing removal (ID 102 - Sara) from the middle
         dept.removeEmployee(102);
 
-        // Show updated list
-        dept.display();
+        dept.display(); // Khalid <-> Ahmed <-> Mona
 
-        // Show reverse order
-        dept.showReverse();
+        // Reverse display using the doubly linked structure
+        dept.showReverse(); // Mona <-> Ahmed <-> Khalid
     }
 }
