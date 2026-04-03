@@ -1,3 +1,4 @@
+// my name is Mohammed Al-Shaharani my uni ID 445801999
 // Node structure for the linked list
 class DepartmentNode {
     int EmpID;
